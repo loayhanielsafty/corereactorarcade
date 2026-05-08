@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Reactor Arcade | Professional Mechatronics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080b0a;
+            --surface: #0f1410;
+            --surface2: #141a15;
+            --green: #2dff7f;
+            --green-dim: rgba(45,255,127,0.08);
+            --green-glow: rgba(45,255,127,0.25);
+            --text: #e8f0eb;
+            --text-muted: #7a9080;
+            --border: rgba(45,255,127,0.15);
+            --border-hover: rgba(45,255,127,0.4);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 48px;
+            background: rgba(8,11,10,0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+
+        .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem; font-weight: 700;
+            color: var(--green);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .nav-links { display: flex; gap: 36px; list-style: none; }
+        .nav-links a {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.85rem; font-weight: 500; letter-spacing: 1px;
+            text-transform: uppercase; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--green); }
+
+        .nav-cta {
+            background: transparent; color: var(--green);
+            border: 1px solid var(--green); padding: 9px 22px;
+            border-radius: 6px; font-size: 0.8rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s; text-decoration: none;
+        }
+        .nav-cta:hover { background: var(--green); color: #080b0a; box-shadow: 0 0 20px var(--green-glow); }
+
+        /* ── HERO ── */
+        header {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 120px 24px 80px;
+            position: relative; overflow: hidden;
+        }
+
+        #heroCanvas {
+            position: absolute; inset: 0;
+            pointer-events: none; z-index: 0;
+        }
+
+        .hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--green-dim); border: 1px solid var(--border);
+            color: var(--green); font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase;
+            padding: 7px 16px; border-radius: 100px; margin-bottom: 32px;
+        }
+        .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 6.5rem);
+            font-weight: 700; line-height: 1.05;
+            letter-spacing: -2px; margin-bottom: 24px;
+        }
+
+        .h1-line1 { color: var(--text); display: block; }
+        .h1-line2 {
+            color: var(--green);
+            text-shadow: 0 0 40px rgba(45,255,127,0.5);
+            display: block;
+        }
+
+        .hero-sub {
+            font-size: 1.15rem; color: var(--text-muted);
+            max-width: 520px; margin: 0 auto 48px;
+            font-weight: 400; line-height: 1.7;
+        }
+
+        .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-primary {
+            background: var(--green); color: #080b0a;
+            border: none; padding: 16px 36px;
+            font-size: 0.9rem; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+            border-radius: 8px; cursor: pointer; transition: all 0.25s;
+            text-decoration: none; display: inline-block;
+        }
+        .btn-primary:hover { box-shadow: 0 0 40px var(--green-glow), 0 8px 32px rgba(0,0,0,0.4); transform: translateY(-2px); }
+
+        .btn-secondary {
+            background: transparent; color: var(--text);
+            border: 1px solid rgba(255,255,255,0.15); padding: 16px 36px;
+            font-size: 0.9rem; font-weight: 500;
+            letter-spacing: 1px; text-transform: uppercase;
+            border-radius: 8px; cursor: pointer; transition: all 0.25s;
+            text-decoration: none; display: inline-block;
+        }
+        .btn-secondary:hover { border-color: var(--border-hover); background: var(--green-dim); transform: translateY(-2px); }
+
+        .scroll-hint {
+            position: absolute; bottom: 40px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center;
+            gap: 8px; color: var(--text-muted); font-size: 0.75rem;
+            letter-spacing: 2px; text-transform: uppercase; z-index: 1;
+            animation: bounce 2.5s infinite;
+        }
+        .scroll-hint svg { opacity: 0.5; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ── SECTIONS ── */
+        .section { padding: 120px 24px; max-width: 1100px; margin: 0 auto; }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--green);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700; letter-spacing: -1px;
+            margin-bottom: 16px; line-height: 1.2;
+        }
+
+        .section-sub {
+            color: var(--text-muted); max-width: 480px;
+            font-size: 1rem; line-height: 1.7; margin-bottom: 64px;
+        }
+
+        /* ── SPECS GRID ── */
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .spec-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px; padding: 36px;
+            position: relative; overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+            opacity: 0; transform: translateY(30px);
+        }
+
+        .spec-card.visible { opacity: 1; transform: translateY(0); }
+
+        .spec-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            opacity: 0; transition: opacity 0.35s;
+        }
+
+        .spec-card:hover { border-color: var(--border-hover); background: var(--surface2); }
+        .spec-card:hover::before { opacity: 1; }
+        .spec-card:hover { transform: translateY(-6px); }
+
+        .spec-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: var(--green-dim); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 24px; font-size: 1.4rem;
+        }
+
+        .spec-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem; font-weight: 600;
+            color: var(--green); margin-bottom: 12px;
+        }
+
+        .spec-body { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 48px 24px;
+        }
+
+        .stats-inner {
+            max-width: 900px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1px; background: var(--border);
+        }
+
+        .stat-item {
+            background: var(--surface);
+            text-align: center; padding: 32px 24px;
+        }
+
+        .stat-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem; font-weight: 700;
+            color: var(--green); letter-spacing: -1px;
+        }
+
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+
+        /* ── BUY SECTION ── */
+        .buy-wrapper {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px; padding: 80px 60px;
+            text-align: center; position: relative; overflow: hidden;
+            opacity: 0; transform: translateY(30px); transition: all 0.5s;
+        }
+        .buy-wrapper.visible { opacity: 1; transform: translateY(0); }
+
+        .buy-wrapper::after {
+            content: '';
+            position: absolute; bottom: -100px; left: 50%;
+            transform: translateX(-50%);
+            width: 400px; height: 200px;
+            background: radial-gradient(ellipse, rgba(45,255,127,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .price-tag {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4rem; font-weight: 700;
+            color: var(--green); letter-spacing: -2px;
+            margin: 24px 0 8px;
+        }
+
+        .price-note { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 40px; }
+
+        /* ── MODAL ── */
+        #checkoutOverlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(4,7,5,0.85);
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(16px);
+            padding: 24px;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%; max-width: 540px;
+            padding: 40px;
+            position: relative;
+            max-height: 90vh; overflow-y: auto;
+            animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal::-webkit-scrollbar { width: 4px; }
+        .modal::-webkit-scrollbar-track { background: transparent; }
+        .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .modal-close {
+            position: absolute; top: 20px; right: 20px;
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text-muted); width: 32px; height: 32px;
+            border-radius: 8px; cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { color: var(--text); border-color: var(--border-hover); }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem; font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .modal-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px; }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block; margin-bottom: 8px;
+            font-size: 0.8rem; font-weight: 600;
+            color: var(--text-muted); letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        input, select, textarea {
+            width: 100%; padding: 13px 16px;
+            background: var(--bg); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text); border-radius: 10px;
+            font-family: 'Inter', sans-serif; font-size: 0.95rem;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(45,255,127,0.1);
+        }
+
+        input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+        select option { background: #0f1410; }
+
+        .payment-details {
+            display: none; margin-top: 16px;
+            padding: 20px; border-radius: 12px;
+            background: rgba(45,255,127,0.04);
+            border: 1px solid var(--border);
+        }
+
+        .two-col { display: flex; gap: 12px; }
+        .two-col > div { flex: 1; }
+
+        .order-summary {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--green-dim); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px 20px;
+            margin: 24px 0;
+        }
+        .order-summary-label { font-size: 0.85rem; color: var(--text-muted); }
+        .order-summary-price { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--green); }
+
+        .submit-btn {
+            width: 100%; padding: 16px;
+            background: var(--green); color: #080b0a;
+            border: none; border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.25s;
+        }
+        .submit-btn:hover { box-shadow: 0 0 32px var(--green-glow); transform: translateY(-1px); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 60px 24px; text-align: center;
+        }
+        .footer-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem; font-weight: 700;
+            color: var(--green); letter-spacing: 2px;
+            text-transform: uppercase; margin-bottom: 16px;
+        }
+        .footer-text { color: var(--text-muted); font-size: 0.85rem; line-height: 2; }
+        .footer-chip {
+            display: inline-block; margin-top: 12px;
+            background: var(--green-dim); border: 1px solid var(--border);
+            color: var(--green); font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase;
+            padding: 5px 14px; border-radius: 100px;
+        }
+
+        /* ── ANIMATIONS ── */
+        .fade-up { opacity: 0; transform: translateY(24px); transition: all 0.55s cubic-bezier(0.4,0,0.2,1); }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 700px) {
+            nav { padding: 16px 20px; }
+            .nav-links { display: none; }
+            .stats-inner { grid-template-columns: 1fr; }
+            .buy-wrapper { padding: 48px 24px; }
+            .modal { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="nav-logo">Core Reactor</a>
+        <ul class="nav-links">
+            <li><a href="#specs">Specs</a></li>
+            <li><a href="#buy">Buy</a></li>
+        </ul>
+        <a href="#buy" class="nav-cta">Get Unit</a>
+    </nav>
+
+    <!-- HERO -->
+    <header>
+        <canvas id="heroCanvas"></canvas>
+        <div class="hero-content">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                Faculty of Engineering ASU · MCT231
+            </div>
+            <h1>
+                <span class="h1-line1">Core</span>
+                <span class="h1-line2">Reactor</span>
+            </h1>
+            <p class="hero-sub">Automated color-sorting and kinetic gameplay engineered for the next generation of mechatronics.</p>
+            <div class="hero-actions">
+                <a href="#buy" class="btn-primary">Initiate Sequence</a>
+                <a href="#specs" class="btn-secondary">View Specs</a>
+            </div>
+        </div>
+        <div class="scroll-hint">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Scroll
+        </div>
+    </header>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-num">99.9%</div>
+                <div class="stat-label">Sort Precision</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">2×</div>
+                <div class="stat-label">Microcontrollers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">∞</div>
+                <div class="stat-label">Continuous Flow</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPECS -->
+    <section class="section" id="specs">
+        <span class="section-label fade-up">System Overview</span>
+        <h2 class="section-title fade-up">System Specifications</h2>
+        <p class="section-sub fade-up">Three precision-engineered subsystems working in perfect synchrony.</p>
+
+        <div class="specs-grid">
+            <div class="spec-card">
+                <div class="spec-icon">⚗️</div>
+                <div class="spec-title">Isotope Sorter</div>
+                <p class="spec-body">Advanced color sensors categorize reaction spheres with 99.9% precision using dual-wavelength optical feedback and real-time signal processing.</p>
+            </div>
+            <div class="spec-card">
+                <div class="spec-icon">⚡</div>
+                <div class="spec-title">Kinetic Elevator</div>
+                <p class="spec-body">An electromechanical vertical lift engineered for continuous flow, with built-in redundancy and safety cutoffs for uninterrupted operation.</p>
+            </div>
+            <div class="spec-card">
+                <div class="spec-icon">🎯</div>
+                <div class="spec-title">Reaction Gun</div>
+                <p class="spec-body">Precision target shooting powered by dual-microcontroller logic — millisecond-accurate actuation with configurable firing profiles.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BUY -->
+    <section class="section" id="buy">
+        <div class="buy-wrapper">
+            <span class="section-label">Limited Edition</span>
+            <h2 class="section-title">Unit Deployment</h2>
+            <p style="color: var(--text-muted); margin-bottom: 8px;">Faculty of Engineering ASU · Limited Run</p>
+            <div class="price-tag">4,500 EGP</div>
+            <p class="price-note">Includes full assembly · Local delivery · Direct from team</p>
+            <button onclick="openCheckout()" class="btn-primary">Authorize Production</button>
+        </div>
+    </section>
+
+    <!-- CHECKOUT MODAL -->
+    <div id="checkoutOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeCheckout()">✕</button>
+            <div class="modal-title">Order Authorization</div>
+            <div class="modal-sub">Complete your details to reserve a unit.</div>
+
+            <form id="orderForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="userName" required placeholder="Your full name">
+                </div>
+
+                <div class="form-group">
+                    <label>Shipping Address (Egypt)</label>
+                    <textarea id="userAddress" rows="2" required placeholder="Street, City, Governorate"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="userPayment" onchange="togglePaymentFields()" required>
+                        <option value="">Select method</option>
+                        <option value="Fawry">Fawry</option>
+                        <option value="Vodafone Cash">Vodafone Cash</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="COD">Cash on Delivery</option>
+                    </select>
+                </div>
+
+                <div id="fawryFields" class="payment-details">
+                    <div class="form-group"><label>Fawry Phone</label><input type="text" id="fawryPhone" placeholder="01XXXXXXXXX"></div>
+                    <div class="form-group"><label>Reference Code</label><input type="text" id="fawryRef" placeholder="Enter reference code"></div>
+                </div>
+
+                <div id="vodafoneFields" class="payment-details">
+                    <div class="form-group"><label>Vodafone Wallet Number</label><input type="text" id="vodaPhone" placeholder="010XXXXXXXX"></div>
+                </div>
+
+                <div id="cardFields" class="payment-details">
+                    <div class="form-group"><label>Card Number</label><input type="text" id="cardNumber" placeholder="1234 5678 9101 1121"></div>
+                    <div class="two-col">
+                        <div><label>Expiry</label><input type="text" id="cardExpiry" placeholder="MM/YY"></div>
+                        <div><label>CVC</label><input type="password" id="cardCVC" placeholder="123"></div>
+                    </div>
+                </div>
+
+                <div id="codFields" class="payment-details">
+                    <div class="form-group"><label>Contact Phone</label><input type="text" id="codPhone" placeholder="01XXXXXXXXX"></div>
+                </div>
+
+                <div class="order-summary">
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">Core Reactor Unit</div>
+                        <div class="order-summary-label">Limited ASU Edition</div>
+                    </div>
+                    <div class="order-summary-price">4,500 EGP</div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Finalize Authorization</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-logo">Core Reactor</div>
+        <div class="footer-text">
+            © 2026 Core Arcade Technologies<br>
+            Faculty of Engineering, Ain Shams University
+        </div>
+        <div class="footer-chip">Mechatronics Project MCT231</div>
+    </footer>
+
+    <script>
+        /* ── PARTICLE CANVAS ── */
+        const canvas = document.getElementById('heroCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const COUNT = 80;
+
+        function resize() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.r = Math.random() * 1.5 + 0.5;
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(45,255,127,${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < COUNT; i++) particles.push(new Particle());
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(45,255,127,${0.08 * (1 - dist/120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            drawLines();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        /* ── SCROLL ANIMATIONS ── */
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 80);
+                }
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.spec-card, .fade-up, .buy-wrapper').forEach(el => observer.observe(el));
+
+        /* ── MODAL ── */
+        function openCheckout() {
+            document.getElementById('checkoutOverlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeCheckout() {
+            document.getElementById('checkoutOverlay').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        document.getElementById('checkoutOverlay').addEventListener('click', e => {
+            if (e.target === document.getElementById('checkoutOverlay')) closeCheckout();
+        });
+
+        function togglePaymentFields() {
+            const method = document.getElementById('userPayment').value;
+            document.querySelectorAll('.payment-details').forEach(el => el.style.display = 'none');
+            const map = { 'Fawry': 'fawryFields', 'Vodafone Cash': 'vodafoneFields', 'Credit Card': 'cardFields', 'COD': 'codFields' };
+            if (map[method]) document.getElementById(map[method]).style.display = 'block';
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.textContent = 'Syncing…';
+            btn.disabled = true;
+
+            const method = document.getElementById('userPayment').value;
+            let extraInfo = '';
+            if (method === 'Fawry') extraInfo = `Phone: ${document.getElementById('fawryPhone').value}, Ref: ${document.getElementById('fawryRef').value}`;
+            if (method === 'Vodafone Cash') extraInfo = `Wallet: ${document.getElementById('vodaPhone').value}`;
+            if (method === 'Credit Card') extraInfo = `Card: ${document.getElementById('cardNumber').value}, Exp: ${document.getElementById('cardExpiry').value}`;
+            if (method === 'COD') extraInfo = `Contact: ${document.getElementById('codPhone').value}`;
+
+            fetch('https://sheetdb.io/api/v1/73siiir14uq5d', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    data: [{
+                        name: document.getElementById('userName').value,
+                        address: document.getElementById('userAddress').value,
+                        payment: `${method} (${extraInfo})`,
+                        total: '4,500 EGP'
+                    }]
+                })
+            })
+            .then(r => r.json())
+            .then(() => {
+                alert('Authorization successful. Order logged.');
+                btn.textContent = 'Finalize Authorization';
+                btn.disabled = false;
+                document.getElementById('orderForm').reset();
+                document.querySelectorAll('.payment-details').forEach(el => el.style.display = 'none');
+                closeCheckout();
+            })
+            .catch(() => {
+                alert('Network error. Please try again.');
+                btn.textContent = 'Finalize Authorization';
+                btn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
